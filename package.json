@@ -16,6 +16,8 @@
     "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@grammyjs/hydrate": "github:grammyjs/hydrate",
+    "@grammyjs/types": "github:grammyjs/types",
     "dotenv": "^16.4.5",
     "grammy": "^1.30.1"
   }
