@@ -19,13 +19,13 @@ bot.api.setMyCommands([
   },
 ]);
 
-bot.command("start", (ctx) => {
+bot.command("start", async (ctx) => {
   const inlineKeyboard = new InlineKeyboard()
     .text("🪨✂️🧻 Game 'Камінь, ножиці, папір'", "game_ssp")
     .row()
     .text("Game", "game");
 
-  ctx.reply("Привіт! Вибери опцію для продовження!", {
+  await ctx.reply("Привіт! Вибери опцію для продовження!", {
     reply_markup: inlineKeyboard,
   });
 });
@@ -35,30 +35,24 @@ const inlineKeyboardSSP = new InlineKeyboard()
   .text("Ножиці ✂️", "gameScissors")
   .text("Папір 🧻", "gamePaper");
 
-bot.callbackQuery("game_ssp", (ctx) => {
-  ctx.answerCallbackQuery();
-  ctx.reply(
-    "Граємо у 'камінь, ножиці, папір'. Обери один із варіантів: камінь, ножиці або папір.",
+bot.callbackQuery("game_ssp", async (ctx) => {
+  await ctx.reply(
+    `Граємо у 'камінь, ножиці, папір'\\. Обери один із варіантів: камінь, ножиці або папір\\.`,
     {
       reply_markup: inlineKeyboardSSP,
+      parse_mode: "MarkdownV2",
     }
   );
+  ctx.answerCallbackQuery();
 });
 
-// bot.on("message", (ctx) => ctx.reply("Got another message!"));
-bot.callbackQuery(/game[Stone,Scissors,Paper]/, (ctx) => {
+bot.callbackQuery(/game[Stone,Scissors,Paper]/, async (ctx) => {
   const userChoice: Choice = ctx.callbackQuery.data as Choice;
   const options = {
     gameStone: "🪨 камінь",
     gameScissors: "✂️ ножиці",
     gamePaper: "🧻 папір",
   };
-
-  // Перевіряємо, чи вибір користувача є валідним
-  if (!Object.keys(options).includes(userChoice)) {
-    ctx.reply("Будь ласка, обери один із варіантів: камінь, ножиці, папір.");
-    return;
-  }
 
   // Випадковий вибір бота
   const botChoice: Choice = Object.keys(options)[
@@ -68,35 +62,43 @@ bot.callbackQuery(/game[Stone,Scissors,Paper]/, (ctx) => {
   // Визначаємо результат
   let result: string;
   if (userChoice === botChoice) {
-    result = "Нічия!";
+    result = "*Нічия\\!*";
   } else if (
     (userChoice === "gameStone" && botChoice === "gameScissors") ||
     (userChoice === "gameScissors" && botChoice === "gamePaper") ||
     (userChoice === "gamePaper" && botChoice === "gameStone")
   ) {
-    result = "Ти переміг!";
+    result = "*Ти переміг\\!*";
   } else {
-    result = "Бот переміг!";
+    result = "*Бот переміг\\!*";
   }
 
-  ctx.callbackQuery.message?.editText(
-    "Граємо у 'камінь, ножиці, папір'. Обери один із варіантів: камінь, ножиці або папір.\n" +
-      "===== Результат =====\n" +
-      `Твій вибір: ${options[userChoice]}\n` +
-      `Вибір бота: ${options[botChoice]}\n` +
-      `${result}`,
-    {
-      reply_markup: inlineKeyboardSSP,
+  try {
+    await ctx.callbackQuery.message?.editText(
+      `Граємо у 'камінь, ножиці, папір'\\. Обери один із варіантів: камінь, ножиці або папір\\.\n` +
+        `————— Результат —————\n` +
+        `Твій вибір: ${options[userChoice]}\n` +
+        `Вибір бота: ${options[botChoice]}\n` +
+        `${result}`,
+      {
+        reply_markup: inlineKeyboardSSP,
+        parse_mode: "MarkdownV2",
+      }
+    );
+  } catch (error) {
+    if (
+      error instanceof GrammyError &&
+      error.description ===
+        "Bad Request: message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message"
+    ) {
+      // Ігноруємо помилку, коли повідомлення не було змінено
+      console.error("Повідомлення не змінилось, помилка ігнорується.");
+    } else {
+      throw error; // Якщо це інша помилка, вона буде оброблена у bot.catch
     }
-  );
+  }
 
-  // Відповідаємо користувачу
   ctx.answerCallbackQuery();
-  //   await ctx.reply(
-  //     `Твій вибір: ${options[userChoice]}\n` +
-  //       `Вибір бота: ${options[botChoice]}\n` +
-  //       `${result}`
-  //   );
 });
 
 bot.catch((err) => {
