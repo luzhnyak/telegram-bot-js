@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/node": "^22.8.4",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
@@ -19,6 +20,7 @@
     "@grammyjs/hydrate": "github:grammyjs/hydrate",
     "@grammyjs/types": "github:grammyjs/types",
     "dotenv": "^16.4.5",
+    "express": "^4.21.1",
     "grammy": "^1.30.1"
   }
 }
