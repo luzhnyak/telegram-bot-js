@@ -1,2 +1,2 @@
 # telegram-bot-js
-Telegram bot
+Telegram bot js
